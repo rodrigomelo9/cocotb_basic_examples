@@ -54,6 +54,14 @@ def python_triggers(dut):
     cocotb.fork(Clock(dut.clk_i, 2).start())
     yield reset(dut)
     #
+    t1 = Timer(1)
+    t2 = Timer(2)
+    yield Combine(t1,t2)
+    dut._log.info("* %s trigger fired" % "Combine")
+    yield First(t1,t2)
+    dut._log.info("* %s trigger fired" % "First")
+    yield Join(cocotb.fork(reset(dut)))
+    dut._log.info("* %s trigger fired" % "Join")
 
 from cocotb.triggers import Event, Lock
 
@@ -63,6 +71,7 @@ def synchronization_triggers(dut):
     cocotb.fork(Clock(dut.clk_i, 2).start())
     yield reset(dut)
     #
+    dut._log.warn("Not yet implemented")
 
 @cocotb.coroutine
 def reset(dut):
