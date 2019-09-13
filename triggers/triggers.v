@@ -1,13 +1,8 @@
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 
 module triggers (
-    input        clk_i,
-    input        rst_i,
-    // Simulator Triggers
-    input        RisingEdge_i,
-    input        FallingEdge_i,
-    input        Edge_i,
-    input        ClockCycles_i
+    input clk_i,
+    input rst_i
 );
 
    initial begin

@@ -1,59 +1,72 @@
 import cocotb
 from cocotb.clock import Clock
+
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, ClockCycles
 
 @cocotb.test()
-def simulator_triggers(dut):
-    """Check the waveforms"""
+def simulator_signal_triggers(dut):
+    """Playing with the Simulator Signals Triggers"""
     cocotb.fork(Clock(dut.clk_i, 2).start())
     yield reset(dut)
     #
-    yield RisingEdge(dut.clk_i)
-    dut.RisingEdge_i <= 1
-    yield RisingEdge(dut.clk_i)
-    dut.RisingEdge_i <= 0
-    yield RisingEdge(dut.clk_i)
-    dut.RisingEdge_i <= 1
-    yield RisingEdge(dut.clk_i)
-    dut.RisingEdge_i <= 0
+    for i in range(4):
+        yield RisingEdge(dut.clk_i)
+        dut._log.info("* %s trigger fired" % "RisingEdge")
+    for i in range(4):
+        yield FallingEdge(dut.clk_i)
+        dut._log.info("* %s trigger fired" % "FallingEdge")
+    for i in range(4):
+        yield Edge(dut.clk_i)
+        dut._log.info("* %s trigger fired" % "Edge")
+    for i in range(4):
+        yield ClockCycles(dut.clk_i, 3)
+        dut._log.info("* %s trigger fired" % "ClockCycle")
+
+from cocotb.triggers import Timer, ReadOnly, ReadWrite, NextTimeStep
+
+@cocotb.test()
+def simulator_timing_triggers(dut):
+    """Playing with the Simulator Timing Triggers"""
+    cocotb.fork(Clock(dut.clk_i, 2).start())
+    yield reset(dut)
     #
-    yield FallingEdge(dut.clk_i)
-    dut.FallingEdge_i <= 1
-    yield FallingEdge(dut.clk_i)
-    dut.FallingEdge_i <= 0
-    yield FallingEdge(dut.clk_i)
-    dut.FallingEdge_i <= 1
-    yield FallingEdge(dut.clk_i)
-    dut.FallingEdge_i <= 0
+    yield Timer(2)
+    dut._log.info("* %s trigger fired" % "Timer")
+    yield Timer(2, "ns")
+    dut._log.info("* %s trigger fired" % "Timer")
+    yield Timer(2000, "ps")
+    dut._log.info("* %s trigger fired" % "Timer")
+    yield Timer(0.002, "us")
+    dut._log.info("* %s trigger fired" % "Timer")
     #
-    yield Edge(dut.clk_i)
-    dut.Edge_i <= 1
-    yield Edge(dut.clk_i)
-    dut.Edge_i <= 0
-    yield Edge(dut.clk_i)
-    dut.Edge_i <= 1
-    yield Edge(dut.clk_i)
-    dut.Edge_i <= 0
+    yield NextTimeStep()
+    dut._log.info("* %s trigger fired" % "NextTimeStep")
+    yield ReadWrite()
+    dut._log.info("* %s trigger fired" % "ReadWrite")
+    yield ReadOnly()
+    dut._log.info("* %s trigger fired" % "ReadOnly")
+
+from cocotb.triggers import Combine, First, Join
+
+@cocotb.test()
+def python_triggers(dut):
+    """Playing with the Python Triggers"""
+    cocotb.fork(Clock(dut.clk_i, 2).start())
+    yield reset(dut)
     #
-    yield ClockCycles(dut.clk_i, 3)
-    dut.ClockCycles_i <= 1
-    yield ClockCycles(dut.clk_i, 3)
-    dut.ClockCycles_i <= 0
-    yield ClockCycles(dut.clk_i, 3)
-    dut.ClockCycles_i <= 1
-    yield ClockCycles(dut.clk_i, 3)
-    dut.ClockCycles_i <= 0
+
+from cocotb.triggers import Event, Lock
+
+@cocotb.test()
+def synchronization_triggers(dut):
+    """Playing with the Synchronization Triggers"""
+    cocotb.fork(Clock(dut.clk_i, 2).start())
+    yield reset(dut)
     #
-    yield Edge(dut.clk_i)
 
 @cocotb.coroutine
 def reset(dut):
-    dut.rst_i         <= 1
-    dut.RisingEdge_i  <= 0
-    dut.FallingEdge_i <= 0
-    dut.Edge_i        <= 0
-    dut.ClockCycles_i <= 0
-    yield ClockCycles(dut.clk_i, 3)
-    dut.rst_i <= 0
+    dut.rst_i <= 1
     yield RisingEdge(dut.clk_i)
+    dut.rst_i <= 0
     dut._log.info("Reset complete")
