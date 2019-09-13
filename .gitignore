@@ -1,0 +1,6 @@
+ignore
+build
+sim_build
+
+*.xml
+*.pyc
